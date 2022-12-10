@@ -21,7 +21,7 @@ spec:
       {{- if (not .Values.mastodon.s3.enabled) }}
       # ensure we run on the same node as the other rails components; only
       # required when using PVCs that are ReadWriteOnce
-      {{- if or (eq "ReadWriteOnce" .Values.mastodon.persistence.assets.accessMode) (eq "ReadWriteOnce" .Values.mastodon.persistence.system.accessMode) }}
+      {{- if or (eq "ReadWriteOnce" .Values.mastodon.persistence.assets.accessMode) (or (eq "ReadWriteOnce" .Values.mastodon.persistence.system.accessMode) (eq "ReadWriteOnce" .Values.mastodon.persistence.assets.accessMode)) }}
       affinity:
         podAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
