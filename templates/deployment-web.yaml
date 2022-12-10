@@ -118,10 +118,23 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with (default .Values.affinity .Values.mastodon.web.affinity) }}
       affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- if not (default .Values.affinity .Values.mastodon.web.affinity).podAffinity }}
+        {{- if or (eq "ReadWriteOnce" .Values.mastodon.persistence.assets.accessMode) (eq "ReadWriteOnce" .Values.mastodon.persistence.system.accessMode) }}
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/part-of
+                    operator: In
+                    values:
+                      - rails
+              topologyKey: kubernetes.io/hostname
+        {{- end }}
+        {{- end }}
+        {{- with (default .Values.affinity .Values.mastodon.web.affinity) }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
